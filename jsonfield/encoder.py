@@ -1,11 +1,17 @@
-from django.db.models.query import QuerySet
-from django.utils import six, timezone
-from django.utils.encoding import force_text
-from django.utils.functional import Promise
 import datetime
 import decimal
 import json
 import uuid
+
+try:
+    from django.utils import six
+except ImportError:
+    import six  # noqa
+
+from django.db.models.query import QuerySet
+from django.utils import timezone
+from django.utils.encoding import force_text
+from django.utils.functional import Promise
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -15,6 +21,7 @@ class JSONEncoder(json.JSONEncoder):
 
     Taken from https://github.com/tomchristie/django-rest-framework/blob/master/rest_framework/utils/encoders.py
     """
+
     def default(self, obj):  # noqa
         # For Date Time string spec, see ECMA 262
         # http://ecma-international.org/ecma-262/5.1/#sec-15.9.1.15
@@ -24,8 +31,8 @@ class JSONEncoder(json.JSONEncoder):
             representation = obj.isoformat()
             if obj.microsecond:
                 representation = representation[:23] + representation[26:]
-            if representation.endswith('+00:00'):
-                representation = representation[:-6] + 'Z'
+            if representation.endswith("+00:00"):
+                representation = representation[:-6] + "Z"
             return representation
         elif isinstance(obj, datetime.date):
             return obj.isoformat()
@@ -45,14 +52,14 @@ class JSONEncoder(json.JSONEncoder):
             return six.text_type(obj)
         elif isinstance(obj, QuerySet):
             return tuple(obj)
-        elif hasattr(obj, 'tolist'):
+        elif hasattr(obj, "tolist"):
             # Numpy arrays and array scalars.
             return obj.tolist()
-        elif hasattr(obj, '__getitem__'):
+        elif hasattr(obj, "__getitem__"):
             try:
                 return dict(obj)
             except:
                 pass
-        elif hasattr(obj, '__iter__'):
+        elif hasattr(obj, "__iter__"):
             return tuple(item for item in obj)
         return super(JSONEncoder, self).default(obj)
